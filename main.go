@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -113,8 +114,18 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, resp.Body)
 }
 
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	statusResponse := map[string]string{
+		"status": "ok",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(statusResponse)
+}
 
 func main() {
+	http.HandleFunc("/", healthHandler)
+	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/init", initHandler)
 	http.HandleFunc("/data", genericHandler)
 	http.HandleFunc("/event", genericHandler)
